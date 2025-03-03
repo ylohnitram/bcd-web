@@ -3,12 +3,15 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import CompanyTable from "@/components/CompanyTable"
-import Map from "@/components/Map" // Přidat tento řádek
+import dynamic from "next/dynamic"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import ServiceFilters from "@/components/ServiceFilters"
 import StructuredData from "@/components/StructuredData"
 import { getCityBySlug, getServiceBySlug, getCompaniesByCityAndService } from "@/lib/data"
 import { CompanySkeleton } from "@/components/ui/skeletons"
+
+// Dynamically import the Map component with no SSR
+const Map = dynamic(() => import("@/components/Map"), { ssr: false })
 
 // Generate static paths at build time
 export async function generateStaticParams() {
@@ -129,7 +132,7 @@ export default async function ServicePage({
 
         <div className="lg:col-span-1">
           <h2 className="text-2xl font-semibold mb-4">Mapa</h2>
-          <Map // Místo <OpenStreetMap
+          <Map
             companies={companies}
             cityCenter={{ lat: city.latitude, lng: city.longitude }}
           />
@@ -140,4 +143,3 @@ export default async function ServicePage({
     </div>
   )
 }
-
