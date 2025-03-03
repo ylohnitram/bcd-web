@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Used for Neon.tech HTTP connection pooling
+}
+
+model City {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  latitude  Float
+  longitude Float
+  companies Company[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Service {
+  id        String             @id @default(cuid())
+  name      String
+  slug      String             @unique
+  companies CompanyToService[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model Company {
+  id          String             @id @default(cuid())
+  name        String
+  address     String
+  phone       String
+  website     String?
+  email       String?
+  description String?
+  latitude    Float
+  longitude   Float
+  rating      Float
+  reviewCount Int
+  image       String?
+  cityId      String
+  city        City               @relation(fields: [cityId], references: [id])
+  services    CompanyToService[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model CompanyToService {
+  id        String   @id @default(cuid())
+  companyId String
+  serviceId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  service   Service  @relation(fields: [serviceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, serviceId])
+}
+
